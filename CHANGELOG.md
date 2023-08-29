@@ -1,5 +1,15 @@
 # 动态导航更新日志
 
+## [0.0.21] (2023.08.29)
+#### feat
+feat: MenuContent 按图标类型添加class
+
+#### refactor
+menuItemAttrs、subMenuAttrs、menuItemGroupAttrs合并成attributes
+
+#### chore
+package添加homepage、repository信息
+
 ## [0.0.20] (2023.08.15)
 #### feat
 - autoIndex方法添加参数

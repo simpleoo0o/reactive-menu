@@ -1,7 +1,7 @@
 <template>
     <template v-if="getIcon(data)">
         <template v-if="isSVGPathStr(getIcon(data))">
-            <svg class="reactive-menu-item-icon" width="18" height="18" :viewBox="getViewBox(data)">
+            <svg class="reactive-menu-item-svg reactive-menu-item-icon" width="18" height="18" :viewBox="getViewBox(data)">
                 <path :d="getSVGPath(data)"/>
             </svg>
         </template>
@@ -9,7 +9,7 @@
                 v-else-if="isImageUrl(getIcon(data))"
                 :src="getImgSrc(data)"
                 :alt="data.name"
-                class="reactive-menu-item-icon"/>
+                class="reactive-menu-item-img reactive-menu-item-icon"/>
         <i v-else :class="getIcon(data)" class="reactive-menu-item-icon"></i>
     </template>
     <span class="reactive-menu-item-text">{{ data.name }}</span>

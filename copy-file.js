@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const glob = require('glob')
 const path = require('path')
 const _ = require('lodash')
-const { globSync } = require("glob");
+const { globSync: Function } = require("glob");
 const basePath = path.resolve('.') + '/'
 const savePath = basePath + 'dist/'
 
@@ -24,7 +24,12 @@ const a = function (paths) {
       const packageFilePath = basePath + key
       const packageData = _.cloneDeep(require(packageFilePath))
       packageData.devDependencies = {}
-      packageData.dependencies = {}
+      // packageData.dependencies = {}
+      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu-item"
+      packageData.repository = {
+        "type": "git",
+        "url": "https://github.com/simpleoo0o/reactive-menu-item.git",
+      }
       packageData.main = './reactive-menu.umd.js'
       delete packageData.private
       packageData.scripts = {}

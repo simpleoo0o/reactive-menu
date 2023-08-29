@@ -57,9 +57,7 @@ export interface ReactiveMenuItemVO {
       hash?: string; // '#'开头的hash，支持${key}
       path?: string; // 会无视name、params参数，直接作为地址跳转,支持 /a/${b}/${c}?d=${d},query参数也可在query中定义；支持${e?}，表示不参与比较
     };
-    menuItemAttrs: {[key: string]: any}; // Menu-Item 属性,具体参考element-plu文档
-    subMenuAttrs: {[key: string]: any}; // SubMenu 属性,具体参考element-plu文档
-    menuItemGroupAttrs: {[key: string]: any}; // Menu-Item-Group 属性,具体参考element-plu文档
+    attributes: {[key: string]: any}; // 视情况，Menu-Item 属性、SubMenu 属性、Menu-Item-Group 属性,具体参考element-plu文档
   };
   children?: ReactiveMenuItemVO[];
 }

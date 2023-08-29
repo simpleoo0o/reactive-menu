@@ -1,6 +1,6 @@
 {
   "name": "reactive-menu-item",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": true,
   "description": "reactive menu item base on element-plus",
   "author": "Xin Li<https://github.com/simpleoo0o>",

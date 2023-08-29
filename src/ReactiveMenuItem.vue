@@ -96,7 +96,7 @@ function resetActiveIndex () {
     v-else-if="type === 'menuItemGroup'"
     :disabled="data.config?.disabled"
     :class="classGet('menu-item-group')"
-    v-bind="data.config.menuItemGroupAttrs"
+    v-bind="data.config.attributes"
     @click.stop="handleClick">
     <template #title>
       <slot name="menu-item-group" :data="data">
@@ -124,7 +124,8 @@ function resetActiveIndex () {
   </el-menu-item-group>
   <el-sub-menu
     v-else-if="type === 'submenu'"
-    v-bind="data.config.subMenuAttrs"
+    popper-class="reactive-menu-item-sub-menu-popper"
+    v-bind="data.config.attributes"
     :disabled="data.config?.disabled"
     :index="data.id"
     :class="classGet('sub-menu')"
@@ -155,7 +156,7 @@ function resetActiveIndex () {
   </el-sub-menu>
   <el-menu-item
     v-else-if="type === 'menuItem'"
-    v-bind="data.config.menuItemAttrs"
+    v-bind="data.config.attributes"
     :disabled="data.config?.disabled"
     :index="data.id"
     :class="classGet('menu-item')"
