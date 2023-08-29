@@ -1,5 +1,9 @@
 # 动态导航更新日志
 
+## [0.0.22] (2023.08.29)
+#### chore
+添加GitHub action并适配
+
 ## [0.0.21] (2023.08.29)
 #### feat
 feat: MenuContent 按图标类型添加class

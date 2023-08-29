@@ -1,13 +1,13 @@
 {
   "name": "reactive-menu-item",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "private": true,
   "description": "reactive menu item base on element-plus",
   "author": "Xin Li<https://github.com/simpleoo0o>",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node update-version.js && node copy-file.js",
+    "build": "vite build && node copy-file.js",
     "publish": "chdir ./dist && npm publish --registry https://registry.npmjs.org",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
