@@ -12,11 +12,11 @@ npm i reactive-menu-item
 ### 基础用法
 ```vue
 <script setup>
-    import ReactiveMenuItem from 'reactive-menu-item/ReactiveMenuItem.vue'
-    // import { ReactiveMenuItem } from 'reactive-menu-item'
-    import useReactiveMenu from 'reactive-menu-item/reactive-menu'
+    // import ReactiveMenuItem from 'reactive-menu-item/ReactiveMenuItem.vue'
+    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
+    import { ReactiveMenuItem, useReactiveMenu } from 'reactive-menu-item'
 
-    import menus from '@/menus'
+    import menus from '@/menus' // 导航数据，类型为ReactiveMenuItemVO[]
 
     const reactiveMenuData = useReactiveMenu(menus)
 </script>
@@ -75,7 +75,8 @@ npm i reactive-menu-item
 ### mock
 ```vue
 <script setup>
-    import useReactiveMenu from 'reactive-menu-item/reactive-menu'
+    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
+    import { useReactiveMenu } from 'reactive-menu-item'
 
     import menus from '@/menus'
 
@@ -89,7 +90,8 @@ npm i reactive-menu-item
 ### 配置项
 ```vue
 <script setup>
-    import useReactiveMenu from 'reactive-menu-item/reactive-menu'
+    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
+    import { useReactiveMenu } from 'reactive-menu-item'
 
     import menus from '@/menus'
 

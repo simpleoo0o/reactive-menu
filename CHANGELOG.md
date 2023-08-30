@@ -1,5 +1,14 @@
 # 动态导航更新日志
 
+## [0.0.23] (2023.08.30)
+#### feat
+useReactiveMenu导出
+#### chore
+build.lib.formats改成es
+#### refactor
+更新依赖
+reactive-menu.js 重命名为 useReactiveMenu.js
+
 ## [0.0.22] (2023.08.29)
 #### chore
 添加GitHub action并适配

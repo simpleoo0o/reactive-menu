@@ -14,7 +14,7 @@ const a = function (paths) {
     'README.md': true,
     'CHANGELOG.md': true,
     'interface.ts': true,
-    'src/reactive-menu.js': true,
+    'src/useReactiveMenu.js': true,
     'src/ReactiveMenuItem.vue': true,
     'src/MenuContent.vue': true,
     'src/ReactiveMenuTree.vue': true
@@ -23,14 +23,14 @@ const a = function (paths) {
     if (key === 'package.json') {
       const packageFilePath = path.resolve(basePath, key)
       const packageData = _.cloneDeep(require(packageFilePath))
-      packageData.devDependencies = {}
-      // packageData.dependencies = {}
-      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu-item"
+      delete packageData.devDependencies
+      delete packageData.dependencies
+      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu-item/blob/dev/README.md"
       packageData.repository = {
         "type": "git",
         "url": "https://github.com/simpleoo0o/reactive-menu-item.git",
       }
-      packageData.main = './reactive-menu.umd.js'
+      packageData.main = './reactive-menu.mjs'
       delete packageData.private
       packageData.scripts = {}
       fs.writeJsonSync(path.resolve(savePath, key), packageData, { spaces: 2 })
