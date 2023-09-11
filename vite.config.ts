@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -28,7 +27,7 @@ export default defineConfig({
     },
     cssCodeSplit: true,
     lib: {
-      entry: './src/lib-main.js',
+      entry: './src/reactive-menu.ts',
       formats: ['es'],
       name: 'ReactiveMenu',
       fileName: 'reactive-menu'

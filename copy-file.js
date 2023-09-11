@@ -13,11 +13,11 @@ const a = function (paths) {
     'package.json': true,
     'README.md': true,
     'CHANGELOG.md': true,
-    'interface.ts': true,
-    'src/useReactiveMenu.js': true,
+    'src/useReactiveMenu.ts': true,
     'src/ReactiveMenuItem.vue': true,
     'src/MenuContent.vue': true,
-    'src/ReactiveMenuTree.vue': true
+    'src/ReactiveMenuTree.vue': true,
+    'types/src': true,
   }, paths)
   for (const key in paths) {
     if (key === 'package.json') {
@@ -31,6 +31,7 @@ const a = function (paths) {
         "url": "https://github.com/simpleoo0o/reactive-menu-item.git",
       }
       packageData.main = './reactive-menu.mjs'
+      packageData.types = '././reactive-menu.d.ts'
       delete packageData.private
       packageData.scripts = {}
       fs.writeJsonSync(path.resolve(savePath, key), packageData, { spaces: 2 })
@@ -38,7 +39,13 @@ const a = function (paths) {
       const files = glob.globSync(path.resolve(basePath, key))
       files.forEach(file => {
         if (paths[key] === true || (paths[key] instanceof Function && paths[key](file))) {
-          fs.copySync(file, path.resolve(savePath, key.replace('src/', '')))
+          let newPath = file.split(/[/\\]/).pop()
+          if (!newPath.includes('.')) {
+            newPath = ''
+          }
+          console.log(file, newPath, path.resolve(savePath, newPath))
+          newPath = path.resolve(savePath, newPath)
+          fs.copySync(file, newPath)
         }
       })
     }

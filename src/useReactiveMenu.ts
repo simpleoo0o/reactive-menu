@@ -1,15 +1,107 @@
 import * as _ from 'lodash'
-import { computed, reactive, provide, watch, toRaw, isRef, unref, isProxy } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, reactive, provide, watch, toRaw, isRef, unref, isProxy, MaybeRef, UnwrapNestedRefs } from "vue";
+import {
+  RouteLocation,
+  RouteLocationNamedRaw,
+  RouteLocationNormalizedLoaded,
+  RouteLocationPathRaw,
+  Router,
+  useRoute,
+  useRouter
+} from "vue-router";
+
+export interface ReactiveMenuConfigVO {
+  // eslint-disable-next-line no-use-before-define
+  autoIndex?: boolean | ((reactiveMenuData: ReactiveMenuVO) => void); // 无匹配导航时是否重定向到首页，布尔值或一个方法，默认true，会获取当前menus的默认菜单跳转，为方法时会调用方法，为false不跳转
+  selfJump?: boolean; // 点击当前导航时，是否跳转，默认false
+  disableMock?: boolean; // 禁用mock,自行处理参数，默认false
+  resetId?: boolean; // 重置Id和parentId，限制同级100个，默认false
+}
+export interface ReactiveMenuRouteParamsVO {
+  // 字段的key
+  key: string;
+  /**
+   * 字段值，填了即为字段的值，
+   * 若不填，从mockConfig中用key取值
+   * ${key} 会被替换成 mockConfig[key]
+   * 支持${key?},表示不参与比较
+   */
+  value?: string;
+  // 地址比较时是否必选
+  isReal?: boolean;
+}
+export interface ReactiveMenuItemVO {
+  id: string;
+  pid: string;
+  name: string;
+  // 只有type为 'menu' 时才会被渲染成导航项，
+  // 'shadowMenu' 用于详情等页面，不会生成导航项，会高亮他type为  'menu' 的祖先
+  // 自定义的 string 用于记录其他信息，如权限，选项等
+  type: 'menu' | 'shadowMenu' | string;
+  checked: boolean;
+  order?: number;
+  config: {
+    element?: string; // 自定义元素，type为 'menu' 时生效
+    boundary?: boolean; // 边界,对应某个菜单项内展开一个详情，自成一棵导航树的场景,如3.6版kgtext，语料管理 点击 管理，进入管理详情，自成一棵导航树
+    isDefault?: boolean;
+    icon?: string;// 默认为icon的class,支持path://开头的，svg path的d，或者path://开头的图片地址,仿echarts的 https://echarts.apache.org/zh/option.html#series-line.symbol
+    viewBox?: string; // 配合icon以path://开头的使用,默认'0 0 24 24'
+    target?: '_blank' | '_self'; // 点击menu时是新开还是本页跳转，默认_self
+    disabled?: boolean;
+    classList?: string[];
+    disabledDefaultClick?: boolean; // 是否禁止默认click事件,用于自定义菜单元素自行处理click事件
+    notBeDefault?: boolean; // 管理时是否可被设为默认菜单
+    route?: {
+      name?: string; // name和path必须有一个，path优先级高于name
+      params?: ReactiveMenuRouteParamsVO[];
+      query?: ReactiveMenuRouteParamsVO[];
+      hash?: string; // '#'开头的hash，支持${key}
+      path?: string; // 会无视name、params参数，直接作为地址跳转,支持 /a/${b}/${c}?d=${d},query参数也可在query中定义；支持${e?}，表示不参与比较
+    };
+    attributes: Record<string, unknown>; // 视情况，Menu-Item 属性、SubMenu 属性、Menu-Item-Group 属性,具体参考element-plu文档
+    menuItemGroup: boolean; // 是否将菜单的类型置为menuItemGroup
+  };
+  children?: ReactiveMenuItemVO[];
+}
+export interface ReactiveMenuVO {
+  menus: ReactiveMenuItemVO[]; // 排序过滤后的所有数据,一般用在一级导航上
+  secondMenus: ReactiveMenuItemVO[]; // 二级导航要展示的数据
+  mock: {[key: string]: any}; // 动态参数取值的地方
+  currentMenu?: ReactiveMenuItemVO; // 当前选中的导航数据
+  currentMenuWithParents?: ReactiveMenuItemVO[]; // 当前选中导航的链路
+  activeIndex?: string;
+  topActiveIndex?: string;
+  config: ReactiveMenuConfigVO;
+  methods: { // 暴露的方法
+    jump: (data: ReactiveMenuItemVO) => ReactiveMenuItemVO;
+    updateMenus: (menus: ReactiveMenuItemVO[]) => void;
+    goDefault: (menus?: ReactiveMenuItemVO[]) => void;
+    resetId: (menus: ReactiveMenuItemVO[]) => void;
+    /**
+     * 匹配路由，返回当前匹配的导航数据
+     * @param $route 路由对象，不传则取当前路由,目前只比对name、params、query、hash(hash仅在history模式下生效)
+     * @param setToReactiveMenuData 是否设置到reactiveMenuData中，默认true
+     * @param willGoDefaultIfNeed 如果不匹配，是否跳转到默认导航，默认true
+     */
+    matchRoute: ($route?: RouteLocationNamedRaw, setToReactiveMenuData?: boolean, willGoDefaultIfNeed?: boolean) => {currentMenu: ReactiveMenuItemVO, currentMenuWithParents: ReactiveMenuItemVO[]};
+  }
+}
+
+export interface ReactiveMenuOptionVO {
+  mock: {[key: string]: any};
+  config: ReactiveMenuConfigVO;
+}
+
+
 
 const reactiveMenuData = reactive({
   menus: [], // 排序过滤后的所有数据
   secondMenus: [], // 二级导航要展示的数据
   mock: {}, // 动态参数取值的地方
-  currentMenu: null, // 当前选中的导航
+  currentMenu: undefined, // 当前选中的导航
   currentMenuWithParents: [], // 当前选中导航的链路
-  activeIndex: null,
-  topActiveIndex: null,
+  activeIndex: undefined,
+  topActiveIndex: undefined,
   config: {
     autoIndex: true, // 无匹配导航时是否重定向到首页
     selfJump: false, // 点击当前导航时，是否跳转
@@ -23,11 +115,11 @@ const reactiveMenuData = reactive({
     matchRoute,
     resetId
   }
-})
+} as ReactiveMenuVO)
 
-let $router = null
-let $route = null
-export default function useReactiveMenu (menus, options) {
+let $router: Router
+let $route: RouteLocationNormalizedLoaded
+export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveMenuOptionVO) {
   reactiveMenuData.mock = getOriginalValue(options.mock || {})
   if (isRef(options.mock) || isProxy(options.mock)) {
     watch(options.mock, () => {
@@ -52,28 +144,26 @@ export default function useReactiveMenu (menus, options) {
     })
   }
 
-  reactiveMenuData.secondMenus = computed({
-    get () {
-      const lastParent = _.findLast(reactiveMenuData.currentMenuWithParents, (o) => {
-        return o.config && o.config.boundary && reactiveMenuData.currentMenu && o.id !== reactiveMenuData.currentMenu.id && o.type === 'menu'
-      })
-      if (lastParent) {
-        return _.filter(lastParent.children || [], ['type', 'menu'])
-      }
-      return []
+  reactiveMenuData.secondMenus = computed(() => {
+    const lastParent = _.findLast<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents, (o) => {
+      return !!(o.config && o.config.boundary && reactiveMenuData.currentMenu && o.id !== reactiveMenuData.currentMenu.id && o.type === 'menu')
+    })
+    if (lastParent) {
+      return _.filter(lastParent.children || [], ['type', 'menu'])
     }
-  })
+    return []
+  }).value
 
   reactiveMenuData.activeIndex = computed(() => {
     return reactiveMenuData.currentMenu?.id
-  })
+  }).value
   reactiveMenuData.topActiveIndex = computed(() => {
-    return _.find(reactiveMenuData.currentMenuWithParents || [], (item) => {
-      return item.config.boundary && item.type === 'menu'
+    return _.find<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents || [], (item) => {
+      return !!item.config.boundary && item.type === 'menu'
     })?.id || _.findLast(reactiveMenuData.currentMenuWithParents || [], (item) => {
       return item.type === 'menu'
     })?.id
-  })
+  }).value
 
   watch($route, () => {
     matchRoute()
@@ -84,8 +174,8 @@ export default function useReactiveMenu (menus, options) {
   return reactiveMenuData
 }
 
-function updateMenus (menus) {
-  reactiveMenuData.currentMenu = null
+function updateMenus (menus: ReactiveMenuItemVO[]) {
+  reactiveMenuData.currentMenu = undefined
   reactiveMenuData.currentMenuWithParents = []
   menus = _.cloneDeep(getOriginalValue(menus))
   if (reactiveMenuData.config.resetId) {
@@ -94,7 +184,7 @@ function updateMenus (menus) {
   reactiveMenuData.menus = menuOrderAndFilter(menus)
   matchRoute()
 }
-function menuOrderAndFilter (menus) {
+function menuOrderAndFilter (menus: ReactiveMenuItemVO[]) {
   for (const menu of menus) {
     menu.id = menu.id.toString ? menu.id.toString() : menu.id
     menu.type = menu.type ?? 'menu'
@@ -104,7 +194,7 @@ function menuOrderAndFilter (menus) {
     }
   }
   return _.filter(_.orderBy(menus, ['order'], ['asc']), (o) => {
-    return o.enable !== false && o.checked !== false
+    return o.checked
   })
 }
 
@@ -116,7 +206,10 @@ function menuOrderAndFilter (menus) {
  * @returns {currentMenu: ReactiveMenuItemVO, currentMenuWithParents: ReactiveMenuItemVO[]}
  */
 function matchRoute (route = $route, setToReactiveMenuData = true, willGoDefaultIfNeed = true) {
-  const recursion = (menus, currentMenuWithParents) => {
+  const recursion = (menus: ReactiveMenuItemVO[], currentMenuWithParents: ReactiveMenuItemVO[]): {
+    currentMenuWithParents: ReactiveMenuItemVO[];
+    currentMenu?: ReactiveMenuItemVO;
+  } => {
     for (const menuItem of menus) {
       const currentMenuWithParents2 = [...currentMenuWithParents]
       currentMenuWithParents2.push(menuItem)
@@ -135,7 +228,7 @@ function matchRoute (route = $route, setToReactiveMenuData = true, willGoDefault
     }
     return {
       currentMenuWithParents: [],
-      currentMenu: null
+      currentMenu: undefined
     }
   }
   const res = recursion(reactiveMenuData.menus, [])
@@ -151,7 +244,8 @@ function matchRoute (route = $route, setToReactiveMenuData = true, willGoDefault
   return res
 }
 
-function matchConfig (item, $routeToMatch) {
+function matchConfig (item: ReactiveMenuItemVO, $routeToMatch: RouteLocationNormalizedLoaded) {
+  const paramsAndQuery: ['params', 'query'] = ['params', 'query']
   if (!item.config) {
     return false
   }
@@ -160,30 +254,31 @@ function matchConfig (item, $routeToMatch) {
   }
   let routeConfig = item.config.route
   if (routeConfig.path && !routeConfig.name) {
-    const route = $router.resolve(pathValueGet(routeConfig.path, true).replace(/\?}/g, '%3F}'))
+    const route: RouteLocation = $router.resolve(pathValueGet(routeConfig.path, true).replace(/\?}/g, '%3F}'))
     if (route.name) {
       routeConfig = {
         ...getOriginalValue(routeConfig)
       }
-      routeConfig.name = route.name
+      routeConfig.name = route.name as string
       routeConfig.params = []
       routeConfig.query = [...routeConfig.query || []]
-      for (const o of ['params', 'query']) {
+      for (const o of paramsAndQuery) {
         for (const key in route[o]) {
-          routeConfig[o].push({
+          const value = route[o][key] as string
+          routeConfig[o]?.push({
             key,
-            value: route[o][key],
-            isReal: route[o][key] ? !route[o][key].endsWith('?}') : false
+            value,
+            isReal: route[o][key] ? !value.endsWith('?}') : false
           })
         }
       }
     }
   }
   if ($routeToMatch?.name === routeConfig.name && routeConfig.name) {
-    for (const o of ['params', 'query']) {
-      const configValue = routeValueGet(routeConfig[o], true) || {}
+    for (const o of paramsAndQuery) {
+      const configValue = routeValueGet(routeConfig[o] || [], true)
       for (const key in configValue || {}) {
-        if (!matchValue(configValue[key], $routeToMatch[o][key])) {
+        if (!matchValue(configValue[key], $routeToMatch[o][key] as string)) {
           return false
         }
         // let isSameValue = true
@@ -217,7 +312,7 @@ function matchConfig (item, $routeToMatch) {
   return true
 }
 
-function matchValue (a, b) {
+function matchValue (a: string, b: string) {
   const reg = new RegExp('^' + _.escapeRegExp(a).replace(/(\/?\\\$\\{.*?\\\?\\})+/g, '.*?') + '$')
   return reg.test(b)
 }
@@ -227,8 +322,8 @@ function matchValue (a, b) {
  * @param configs 路由配置
  * @param forCompare 是否用于比较，为true时，isReal为false的值会被忽略
  */
-function routeValueGet (configs, forCompare) {
-  const value = {}
+function routeValueGet (configs: ReactiveMenuRouteParamsVO[], forCompare = false) {
+  const value: {[key: string]: string} = {}
   if (configs) {
     for (const config of configs) {
       if (!forCompare || (forCompare && config.isReal)) {
@@ -237,7 +332,7 @@ function routeValueGet (configs, forCompare) {
           if (typeof configValue === 'string') {
             configValue = pathValueGet(configValue, forCompare)
           }
-          value[config.key] = configValue
+          value[config.key] = configValue as string
         } else {
           value[config.key] = getMockValue(config.key)
         }
@@ -253,7 +348,7 @@ function routeValueGet (configs, forCompare) {
  * @param forCompare 是否用于比较，为true时，${a?}返回原值
  * @returns {*}
  */
-function pathValueGet (path, forCompare) {
+function pathValueGet (path: string, forCompare = false): string {
   if (getConfigValue('disableMock')) {
     return path
   }
@@ -300,54 +395,56 @@ function goDefault (menus = reactiveMenuData.menus) {
   jump(defaultMenu)
 }
 
-function getDefault (menuList) {
-  let defaultItem = _.find(menuList, (o) => {
-    return o.config && o.config.isDefault && !o.config.disabled
+function getDefault (menuList: ReactiveMenuItemVO[]) {
+  let defaultItem = _.find<ReactiveMenuItemVO>(menuList, (o) => {
+    return !!(o.config?.isDefault && !o.config.disabled)
   })
   if (!defaultItem) {
-    defaultItem = _.find(menuList, (o) => {
+    defaultItem = _.find<ReactiveMenuItemVO>(menuList, (o) => {
       return o.type === 'menu' && !o.config.disabled
     })
   }
-  if (defaultItem && defaultItem.children &&
-    defaultItem.children.length &&
-    (!defaultItem.config.route || (defaultItem.config.route && !defaultItem.config.route.name))) {
+  if (defaultItem?.children?.length && (!defaultItem.config.route || !defaultItem?.config?.route?.name)) {
     return getDefault(defaultItem.children)
   } else {
     return defaultItem
   }
 }
 
-function jump (menu) {
+function jump (menu: ReactiveMenuItemVO | undefined) {
   if (!menu) {
     return
   }
   if (menu && menu.config && menu.config.route) {
-    const routeInfo = _.cloneDeep(menu.config.route)
-    if (routeInfo) {
-      routeInfo.params = routeValueGet(routeInfo.params)
+    const configRoute = menu.config.route
+    const routeInfo: RouteLocationPathRaw | RouteLocationNamedRaw = {
+      name: configRoute?.name,
+      path: configRoute?.path
     }
-    if (routeInfo.query) {
-      routeInfo.query = routeValueGet(routeInfo.query)
+    if (configRoute.params) {
+      (routeInfo as RouteLocationNamedRaw).params = routeValueGet(configRoute.params)
     }
-    if (routeInfo.hash) {
-      routeInfo.hash = pathValueGet(routeInfo.hash)
+    if (configRoute.query) {
+      routeInfo.query = routeValueGet(configRoute.query)
     }
-    if (routeInfo.path) {
-      routeInfo.path = pathValueGet(routeInfo.path)
+    if (configRoute.hash) {
+      routeInfo.hash = pathValueGet(configRoute.hash)
+    }
+    if (configRoute.path) {
+      (routeInfo as RouteLocationPathRaw).path = pathValueGet(configRoute.path)
       if (routeInfo.query) {
-        routeInfo.path += (routeInfo.path.includes('?') ? '&' : '?') + _.map(_.keys(routeInfo.query), (key) => {
-          return `${key}=${encodeURIComponent(routeInfo.query[key])}`
+        (routeInfo as RouteLocationPathRaw).path += ((routeInfo as RouteLocationPathRaw).path.includes('?') ? '&' : '?') + _.map(_.keys(routeInfo.query), (key) => {
+          return `${key}=${encodeURIComponent(routeInfo.query?.[key] as string)}`
         }).join('&')
       }
       if (routeInfo.hash) {
-        routeInfo.path += routeInfo.hash
+        (routeInfo as RouteLocationPathRaw).path += routeInfo.hash
       }
     }
     if (!menu.config.target || menu.config.target === '_self') {
-      $router.push(routeInfo.path || routeInfo)
+      $router.push((routeInfo as RouteLocationPathRaw).path || routeInfo)
     } else {
-      window.open(routeInfo.path || $router.resolve(routeInfo).href, menu.config.target)
+      window.open((routeInfo as RouteLocationPathRaw).path || $router.resolve(routeInfo).href, menu.config.target)
     }
     return menu
   } else if (menu.children && menu.children.length && menu.config.boundary) {
@@ -355,7 +452,7 @@ function jump (menu) {
   }
 }
 
-function getMockValue (key) {
+function getMockValue (key: string) {
   if (getConfigValue('disableMock')) {
     return key
   }
@@ -366,18 +463,18 @@ function getMockValue (key) {
   return _.get(mock, key)
 }
 
-function getConfigValue (key) {
+function getConfigValue (key: string) {
   const config = getOriginalValue(reactiveMenuData.config)
   return _.get(config, key)
 }
 
-function getOriginalValue (value) {
-  return isProxy(value) ? toRaw(value) : unref(value)
+function getOriginalValue<T> (value: UnwrapNestedRefs<T> | MaybeRef<T>): T {
+  return isProxy(value) ? toRaw<T>(value as T) : unref(value as MaybeRef<T>)
 }
 
 function goDefaultIfNeed () {
   const autoIndex = getConfigValue('autoIndex')
-  if (!reactiveMenuData.currentMenuWithParents.length && !!autoIndex) {
+  if (!reactiveMenuData.currentMenuWithParents?.length && !!autoIndex) {
     if (autoIndex instanceof Function) {
       autoIndex(reactiveMenuData)
     } else {
@@ -386,33 +483,33 @@ function goDefaultIfNeed () {
   }
 }
 
-function resetId (list) {
-  const ids = []
-  const noIdMenus = []
-  const recursion = (list, parentId) => {
+function resetId (list: ReactiveMenuItemVO[]) {
+  const ids: string[] = []
+  const noIdMenus: ReactiveMenuItemVO[] = []
+  const recursion = (list: ReactiveMenuItemVO[], parentId: string) => {
     for (const item of list) {
-      if (item.id || item.id === 0) {
+      if (item.id || parentId?.toString() === '0') {
         ids.push(item.id)
       } else {
         noIdMenus.push(item)
       }
-      if (parentId || parentId === 0) {
-        item.parentId = parentId
+      if (parentId || parentId?.toString() === '0') {
+        item.pid = parentId
       }
       if (item.children?.length) {
         recursion(item.children, item.id)
       }
     }
   }
-  recursion(list)
+  recursion(list, '')
   let maxId = Math.max(...ids.map((id) => {
     return isNaN(Number(id)) ? 0 : Number(id)
   }), 0)
   for (const item of noIdMenus) {
-    item.id = ++maxId
+    item.id = (++maxId).toString()
     if (item.children?.length) {
       for (const child of item.children) {
-        child.parentId = item.id
+        child.pid = item.id
       }
     }
   }

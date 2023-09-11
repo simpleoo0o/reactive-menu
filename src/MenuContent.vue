@@ -1,50 +1,62 @@
 <template>
-    <template v-if="getIcon(data)">
-        <template v-if="isSVGPathStr(getIcon(data))">
-            <svg class="reactive-menu-item-svg reactive-menu-item-icon" width="18" height="18" :viewBox="getViewBox(data)">
-                <path :d="getSVGPath(data)"/>
-            </svg>
-        </template>
-        <img
-                v-else-if="isImageUrl(getIcon(data))"
-                :src="getImgSrc(data)"
-                :alt="data.name"
-                class="reactive-menu-item-img reactive-menu-item-icon"/>
-        <i v-else :class="getIcon(data)" class="reactive-menu-item-icon"></i>
+  <template v-if="getIcon(data)">
+    <template v-if="isSVGPathStr(getIcon(data))">
+      <svg
+        class="reactive-menu-item-svg reactive-menu-item-icon"
+        width="18"
+        height="18"
+        :viewBox="getViewBox(data)"
+      >
+        <path :d="getSVGPath(data)" />
+      </svg>
     </template>
-    <span class="reactive-menu-item-text">{{ data.name }}</span>
+    <img
+      v-else-if="isImageUrl(getIcon(data))"
+      :src="getImgSrc(data)"
+      :alt="data.name"
+      class="reactive-menu-item-img reactive-menu-item-icon"
+    />
+    <i v-else :class="getIcon(data)" class="reactive-menu-item-icon"></i>
+  </template>
+  <span class="reactive-menu-item-text">{{ data.name }}</span>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import { ReactiveMenuItemVO } from './useReactiveMenu'
 
 const props = defineProps({
-    menuData: Object
+  menuData: {
+    type: Object,
+    required: true
+  }
 })
 
-const data = computed(() => {
-    return props.menuData
+const data = computed<ReactiveMenuItemVO>(() => {
+  return props.menuData as ReactiveMenuItemVO
 })
 
-function getIcon (data) {
-    return data.config?.icon
-}
-function getViewBox (data) {
-    return data.config?.viewBox || '0 0 24 24'
+function getIcon(data: ReactiveMenuItemVO): string {
+  return data.config?.icon || ''
 }
 
-function getSVGPath (data) {
-    return getIcon(data).replace(/^path:\/\//, '')
-}
-function getImgSrc (data) {
-    return getIcon(data).replace(/^image:\/\//, '')
+function getViewBox(data: ReactiveMenuItemVO): string {
+  return data.config?.viewBox || '0 0 24 24'
 }
 
-function isSVGPathStr (icon) {
-    return /^path:\/\/.+$/.test(icon)
+function getSVGPath(data: ReactiveMenuItemVO): string {
+  return getIcon(data).replace(/^path:\/\//, '')
 }
 
-function isImageUrl (icon) {
+function getImgSrc(data: ReactiveMenuItemVO): string {
+  return getIcon(data).replace(/^image:\/\//, '')
+}
+
+function isSVGPathStr(icon: string): boolean {
+  return /^path:\/\/.+$/.test(icon)
+}
+
+function isImageUrl(icon: string): boolean {
   return /^image:\/\/.+$/.test(icon)
 }
 </script>

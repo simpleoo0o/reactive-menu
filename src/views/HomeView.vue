@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { RouterView } from 'vue-router'
 import { ElContainer, ElHeader, ElAside, ElMain, ElMenu } from 'element-plus'
-import useReactiveMenu from '@/reactive-menu'
+import { useReactiveMenu } from '../useReactiveMenu'
 import menus from '../menus'
-import ReactiveMenuItem from '@/ReactiveMenuItem.vue'
+import ReactiveMenuItem from '../ReactiveMenuItem.vue'
 import { computed } from 'vue'
 
 const calcMock = computed(() => {
@@ -20,14 +20,14 @@ const config = {
 const reactiveMenuData = useReactiveMenu(menus, {
   mock: calcMock,
   config
-})
-window.reactiveMenuData = reactiveMenuData
+});
+(window as any).reactiveMenuData = reactiveMenuData
 
-function goHome () {
+function goHome() {
   reactiveMenuData.methods.goDefault()
 }
 
-function handleClick (arg) {
+function handleClick(arg: any) {
   console.log(arg)
 }
 </script>
@@ -35,10 +35,7 @@ function handleClick (arg) {
 <template>
   <el-container>
     <el-header>
-      <div
-        @click="goHome"
-        class="logo">LOGO
-      </div>
+      <div class="logo" @click="goHome">LOGO</div>
       <el-menu
         :default-active="reactiveMenuData.topActiveIndex"
         class="el-menu-demo"
@@ -46,10 +43,11 @@ function handleClick (arg) {
         :ellipsis="false"
       >
         <reactive-menu-item
-          @on-click="handleClick"
           v-for="item of reactiveMenuData.menus"
           :key="item.id"
-          :data="item" />
+          :data="item"
+          @on-click="handleClick"
+        />
       </el-menu>
     </el-header>
     <el-container class="body">
@@ -58,8 +56,13 @@ function handleClick (arg) {
           :default-active="reactiveMenuData.activeIndex"
           class="el-menu-demo"
           mode="vertical"
-          :ellipsis="false">
-          <reactive-menu-item v-for="item of reactiveMenuData.secondMenus" :key="item.id" :data="item">
+          :ellipsis="false"
+        >
+          <reactive-menu-item
+            v-for="item of reactiveMenuData.secondMenus"
+            :key="item.id"
+            :data="item"
+          >
             <!--                        <template #menu-item="{data}">-->
             <!--                            {{data.name}}={{data.id}}-->
             <!--                        </template>-->
