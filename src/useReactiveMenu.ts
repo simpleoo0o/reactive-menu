@@ -88,8 +88,8 @@ export interface ReactiveMenuVO {
 }
 
 export interface ReactiveMenuOptionVO {
-  mock: {[key: string]: any};
-  config: ReactiveMenuConfigVO;
+  mock?: {[key: string]: any};
+  config?: ReactiveMenuConfigVO;
 }
 
 
@@ -119,17 +119,17 @@ const reactiveMenuData = reactive({
 
 let $router: Router
 let $route: RouteLocationNormalizedLoaded
-export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveMenuOptionVO) {
+export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveMenuOptionVO = {}) {
   reactiveMenuData.mock = getOriginalValue(options.mock || {})
-  if (isRef(options.mock) || isProxy(options.mock)) {
-    watch(options.mock, () => {
+  if (options.mock && isRef(options.mock) || isProxy(options.mock)) {
+    watch(options?.mock || {}, () => {
       reactiveMenuData.mock = getOriginalValue(options.mock || {})
     })
   }
 
   reactiveMenuData.config = _.merge({}, reactiveMenuData.config, getOriginalValue(options.config || {}))
-  if (isRef(options.config) || isProxy(options.config)) {
-    watch(options.config, () => {
+  if (options.config && isRef(options.config) || isProxy(options.config)) {
+    watch(options?.config || {}, () => {
       reactiveMenuData.config = _.merge({}, reactiveMenuData.config, getOriginalValue(options.config || {}))
     })
   }

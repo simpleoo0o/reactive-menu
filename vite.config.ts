@@ -28,7 +28,7 @@ export default defineConfig({
     cssCodeSplit: true,
     lib: {
       entry: './src/reactive-menu.ts',
-      formats: ['es'],
+      formats: ['es', 'cjs', 'iife'],
       name: 'ReactiveMenu',
       fileName: 'reactive-menu'
     }

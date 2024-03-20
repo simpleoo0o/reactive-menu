@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const glob = require('glob')
 const path = require('node:path')
 const _ = require('lodash')
-const { globSync: Function } = require("glob");
+const { globSync: Function } = require("glob")
 const basePath = path.resolve(__dirname)
 const savePath = path.resolve(basePath, 'dist')
 
@@ -14,6 +14,7 @@ const a = function (paths) {
     'README.md': true,
     'CHANGELOG.md': true,
     'src/useReactiveMenu.ts': true,
+    'src/reactive-menu.ts': true,
     'src/ReactiveMenuItem.vue': true,
     'src/MenuContent.vue': true,
     'src/ReactiveMenuTree.vue': true,
@@ -30,8 +31,11 @@ const a = function (paths) {
         "type": "git",
         "url": "https://github.com/simpleoo0o/reactive-menu-item.git",
       }
-      packageData.main = './reactive-menu.mjs'
-      packageData.types = '././reactive-menu.d.ts'
+      packageData.main = './reactive-menu.js'
+      packageData.module = './reactive-menu.mjs'
+      packageData.types = './reactive-menu.d.ts'
+      packageData.unpkg = './reactive-menu.iife.js'
+      packageData.jsdelivr = './reactive-menu.iife.js'
       delete packageData.private
       packageData.scripts = {}
       fs.writeJsonSync(path.resolve(savePath, key), packageData, { spaces: 2 })

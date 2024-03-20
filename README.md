@@ -1,4 +1,5 @@
 # reactive-menu-item
+提供一个 ReactiveMenuItemVO 类型的菜单树，可根据url匹配到对应的菜单项，支持动态参数
 
 ## demo
 https://simpleoo0o.github.io/reactive-menu-item-demo
