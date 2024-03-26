@@ -1,4 +1,5 @@
-export * from './ReactiveMenuItem.vue'
-export * from './ReactiveMenuTree.vue'
-export * from './MenuContent.vue'
+import ReactiveMenuItem from './ReactiveMenuItem.vue'
+import ReactiveMenuTree from './ReactiveMenuTree.vue'
+import MenuContent from './MenuContent.vue'
 export * from './useReactiveMenu.ts'
+export { ReactiveMenuItem, ReactiveMenuTree, MenuContent }

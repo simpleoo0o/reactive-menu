@@ -1,5 +1,16 @@
 import * as _ from 'lodash'
-import { computed, reactive, provide, watch, toRaw, isRef, unref, isProxy, MaybeRef, UnwrapNestedRefs } from "vue";
+import {
+  reactive,
+  provide,
+  watch,
+  toRaw,
+  isRef,
+  unref,
+  isProxy,
+  MaybeRef,
+  UnwrapNestedRefs,
+  watchEffect
+} from "vue";
 import {
   RouteLocation,
   RouteLocationNamedRaw,
@@ -38,7 +49,8 @@ export interface ReactiveMenuItemVO {
   // 'shadowMenu' 用于详情等页面，不会生成导航项，会高亮他type为  'menu' 的祖先
   // 自定义的 string 用于记录其他信息，如权限，选项等
   type: 'menu' | 'shadowMenu' | string;
-  checked: boolean;
+  checked?: boolean;
+  enable?: boolean;
   order?: number;
   config: {
     element?: string; // 自定义元素，type为 'menu' 时生效
@@ -144,26 +156,27 @@ export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveM
     })
   }
 
-  reactiveMenuData.secondMenus = computed(() => {
+  watchEffect(() => {
     const lastParent = _.findLast<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents, (o) => {
       return !!(o.config && o.config.boundary && reactiveMenuData.currentMenu && o.id !== reactiveMenuData.currentMenu.id && o.type === 'menu')
     })
     if (lastParent) {
-      return _.filter(lastParent.children || [], ['type', 'menu'])
+      reactiveMenuData.secondMenus = _.filter(lastParent.children || [], ['type', 'menu'])
     }
-    return []
-  }).value
+    reactiveMenuData.secondMenus = []
+  })
 
-  reactiveMenuData.activeIndex = computed(() => {
-    return reactiveMenuData.currentMenu?.id
-  }).value
-  reactiveMenuData.topActiveIndex = computed(() => {
-    return _.find<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents || [], (item) => {
+  watchEffect(() => {
+    reactiveMenuData.activeIndex = reactiveMenuData.currentMenu?.id
+  })
+
+  watchEffect(() => {
+    reactiveMenuData.topActiveIndex = _.find<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents || [], (item) => {
       return !!item.config.boundary && item.type === 'menu'
     })?.id || _.findLast(reactiveMenuData.currentMenuWithParents || [], (item) => {
       return item.type === 'menu'
     })?.id
-  }).value
+  })
 
   watch($route, () => {
     matchRoute()
@@ -194,7 +207,7 @@ function menuOrderAndFilter (menus: ReactiveMenuItemVO[]) {
     }
   }
   return _.filter(_.orderBy(menus, ['order'], ['asc']), (o) => {
-    return o.checked
+    return o.enable !== false && o.checked !== false
   })
 }
 
