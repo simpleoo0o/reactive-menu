@@ -133,14 +133,14 @@ let $router: Router
 let $route: RouteLocationNormalizedLoaded
 export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveMenuOptionVO = {}) {
   reactiveMenuData.mock = getOriginalValue(options.mock || {})
-  if (options.mock && isRef(options.mock) || isProxy(options.mock)) {
+  if (options.mock && (isRef(options.mock) || isProxy(options.mock))) {
     watch(options?.mock || {}, () => {
       reactiveMenuData.mock = getOriginalValue(options.mock || {})
     })
   }
 
   reactiveMenuData.config = _.merge({}, reactiveMenuData.config, getOriginalValue(options.config || {}))
-  if (options.config && isRef(options.config) || isProxy(options.config)) {
+  if (options.config && (isRef(options.config) || isProxy(options.config))) {
     watch(options?.config || {}, () => {
       reactiveMenuData.config = _.merge({}, reactiveMenuData.config, getOriginalValue(options.config || {}))
     })
@@ -158,12 +158,24 @@ export function useReactiveMenu (menus: ReactiveMenuItemVO[], options: ReactiveM
 
   watchEffect(() => {
     const lastParent = _.findLast<ReactiveMenuItemVO>(reactiveMenuData.currentMenuWithParents, (o) => {
-      return !!(o.config && o.config.boundary && reactiveMenuData.currentMenu && o.id !== reactiveMenuData.currentMenu.id && o.type === 'menu')
+      return !!(
+        o.config &&
+        o.config.boundary &&
+        reactiveMenuData.currentMenu &&
+        // currentMenu是 boundary为true的menu时，不需要展示他的children
+        o.id !== reactiveMenuData.currentMenu.id &&
+        o.type === 'menu'
+      )
     })
     if (lastParent) {
-      reactiveMenuData.secondMenus = _.filter(lastParent.children || [], ['type', 'menu'])
+      if (reactiveMenuData.currentMenu && reactiveMenuData.currentMenu.type !== 'menu' && _.find(lastParent.children, {id: reactiveMenuData.currentMenu.id})) {
+        reactiveMenuData.secondMenus = []
+      } else {
+        reactiveMenuData.secondMenus = _.filter(lastParent.children || [], ['type', 'menu'])
+      }
+    } else {
+      reactiveMenuData.secondMenus = []
     }
-    reactiveMenuData.secondMenus = []
   })
 
   watchEffect(() => {
@@ -274,7 +286,7 @@ function matchConfig (item: ReactiveMenuItemVO, $routeToMatch: RouteLocationNorm
       }
       routeConfig.name = route.name as string
       routeConfig.params = []
-      routeConfig.query = [...routeConfig.query || []]
+      routeConfig.query = [...(routeConfig.query || [])]
       for (const o of paramsAndQuery) {
         for (const key in route[o]) {
           const value = route[o][key] as string
