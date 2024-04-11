@@ -40,32 +40,23 @@
 <script setup lang="ts">
 import * as _ from 'lodash'
 import { ElTree, ElCheckbox, ElButton, ElMessageBox, ElMessage } from 'element-plus'
-import { PropType, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { ReactiveMenuItemVO } from './useReactiveMenu'
 import Node from 'element-plus/es/components/tree/src/model/node'
 import { NodeDropType } from 'element-plus/es/components/tree/src/tree.type'
 
-const props = defineProps({
-  menuData: {
-    type: Array as PropType<ReactiveMenuItemVO[]>,
-    default: () => []
-  },
-  isOpenDrag: {
-    type: Boolean,
-    default: true
-  },
-  isOpenRename: {
-    type: Boolean,
-    default: true
-  },
-  isOpenDefault: {
-    type: Boolean,
-    default: true
-  },
-  isOpenCheck: {
-    type: Boolean,
-    default: true
-  }
+const props = withDefaults(defineProps<{
+  menuData: ReactiveMenuItemVO[]
+  isOpenDrag: boolean
+  isOpenRename: boolean
+  isOpenDefault: boolean
+  isOpenCheck: boolean
+}>(), {
+  menuData: () => [],
+  isOpenDrag: true,
+  isOpenRename: true,
+  isOpenDefault: true,
+  isOpenCheck: true
 })
 
 let menus = reactive<ReactiveMenuItemVO[]>([])

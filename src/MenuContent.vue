@@ -25,12 +25,9 @@
 import { computed } from 'vue'
 import { ReactiveMenuItemVO } from './useReactiveMenu'
 
-const props = defineProps({
-  menuData: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps<{
+  menuData: ReactiveMenuItemVO
+}>()
 
 const data = computed<ReactiveMenuItemVO>(() => {
   return props.menuData as ReactiveMenuItemVO

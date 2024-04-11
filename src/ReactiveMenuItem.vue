@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as _ from 'lodash'
 import { ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
-import { computed, inject, PropType, toRef } from "vue";
+import { computed, inject, toRef } from "vue";
 import MenuContent from './MenuContent.vue'
 import { ReactiveMenuItemVO, ReactiveMenuVO } from './useReactiveMenu'
 import { MenuProvider } from "element-plus/es/components/menu/src/types";
@@ -9,12 +9,9 @@ import { MenuProvider } from "element-plus/es/components/menu/src/types";
 const reactiveMenuData = inject('reactiveMenuData') as ReactiveMenuVO
 const rootMenu: MenuProvider | undefined = inject('rootMenu')
 
-const props = defineProps({
-  data: {
-    type: Object as PropType<ReactiveMenuItemVO>,
-    required: true
-  }
-})
+const props = defineProps<{
+  data: ReactiveMenuItemVO
+}>()
 const emit = defineEmits(['on-click'])
 const menuChildren = computed(() => {
   if (props.data.config.boundary) {
