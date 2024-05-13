@@ -75,10 +75,11 @@ export interface ReactiveMenuItemVO {
   };
   children?: ReactiveMenuItemVO[];
 }
+export type MockVO =Record<string, string | MockVO>
 export interface ReactiveMenuVO {
   menus: ReactiveMenuItemVO[]; // 排序过滤后的所有数据,一般用在一级导航上
   secondMenus: ReactiveMenuItemVO[]; // 二级导航要展示的数据
-  mock: {[key: string]: any}; // 动态参数取值的地方
+  mock: MockVO; // 动态参数取值的地方
   currentMenu?: ReactiveMenuItemVO; // 当前选中的导航数据
   currentMenuWithParents?: ReactiveMenuItemVO[]; // 当前选中导航的链路
   activeIndex?: string;
@@ -100,13 +101,11 @@ export interface ReactiveMenuVO {
 }
 
 export interface ReactiveMenuOptionVO {
-  mock?: {[key: string]: any};
+  mock?: MockVO;
   config?: ReactiveMenuConfigVO;
 }
 
-
-
-const reactiveMenuData = reactive({
+const reactiveMenuData = reactive<ReactiveMenuVO>({
   menus: [], // 排序过滤后的所有数据
   secondMenus: [], // 二级导航要展示的数据
   mock: {}, // 动态参数取值的地方
@@ -127,7 +126,7 @@ const reactiveMenuData = reactive({
     matchRoute,
     resetId
   }
-} as ReactiveMenuVO)
+})
 
 let $router: Router
 let $route: RouteLocationNormalizedLoaded
