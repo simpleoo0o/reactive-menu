@@ -1,31 +1,48 @@
 # 动态导航更新日志
 
+## [1.0.6] (2024.07.05)
+#### refactor
+- 重命名
+  - reactive-menu-item 重命名为 reactive-menu
+  - ReactiveMenuConfigVO 重命名为 ReactiveMenuConfig
+  - ReactiveMenuRouteParamsVO 重命名为 ReactiveMenuRouteParams
+  - ReactiveMenuRouteParamsVO 重命名为 ReactiveMenuRouteParams
+  - isReal 重命名为 required
+  - ReactiveMenuItemVO 重命名为 ReactiveMenuItemConfig
+  - MockVO 重命名为 MockParams
+  - ReactiveMenuVO 重命名为 ReactiveMenu
+  - ReactiveMenuOptionVO 重命名为 ReactiveMenuOption
+  - resetId 重命名为 resetMenuIds
+  - reactiveMenuData 重命名为 reactiveMenu
+- 移除resetId配置项
+- 更新依赖
+
 ## [0.0.24] (2023.09.11)
 #### refactor
-改成ts
+- 改成ts
 
 ## [0.0.23] (2023.08.30)
 #### feat
-useReactiveMenu导出
+- useReactiveMenu导出
 #### chore
-build.lib.formats改成es
+- build.lib.formats改成es
 #### refactor
-更新依赖
-reactive-menu.js 重命名为 useReactiveMenu.js
+- 更新依赖
+- reactive-menu.js 重命名为 useReactiveMenu.js
 
 ## [0.0.22] (2023.08.29)
 #### chore
-添加GitHub action并适配
+- 添加GitHub action并适配
 
 ## [0.0.21] (2023.08.29)
 #### feat
-feat: MenuContent 按图标类型添加class
+- feat: MenuContent 按图标类型添加class
 
 #### refactor
-menuItemAttrs、subMenuAttrs、menuItemGroupAttrs合并成attributes
+- menuItemAttrs、subMenuAttrs、menuItemGroupAttrs合并成attributes
 
 #### chore
-package添加homepage、repository信息
+- package添加homepage、repository信息
 
 ## [0.0.20] (2023.08.15)
 #### feat

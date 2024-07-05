@@ -7,7 +7,7 @@
         height="18"
         :viewBox="getViewBox(data)"
       >
-        <path :d="getSVGPath(data)" />
+        <path :d="getSVGPath(data)"/>
       </svg>
     </template>
     <img
@@ -23,37 +23,37 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ReactiveMenuItemVO } from './useReactiveMenu'
+import { ReactiveMenuItemConfig } from './useReactiveMenu'
 
 const props = defineProps<{
-  menuData: ReactiveMenuItemVO
+  menuData: ReactiveMenuItemConfig
 }>()
 
-const data = computed<ReactiveMenuItemVO>(() => {
-  return props.menuData as ReactiveMenuItemVO
+const data = computed<ReactiveMenuItemConfig>(() => {
+  return props.menuData as ReactiveMenuItemConfig
 })
 
-function getIcon(data: ReactiveMenuItemVO): string {
+function getIcon (data: ReactiveMenuItemConfig): string {
   return data.config?.icon || ''
 }
 
-function getViewBox(data: ReactiveMenuItemVO): string {
+function getViewBox (data: ReactiveMenuItemConfig): string {
   return data.config?.viewBox || '0 0 24 24'
 }
 
-function getSVGPath(data: ReactiveMenuItemVO): string {
+function getSVGPath (data: ReactiveMenuItemConfig): string {
   return getIcon(data).replace(/^path:\/\//, '')
 }
 
-function getImgSrc(data: ReactiveMenuItemVO): string {
+function getImgSrc (data: ReactiveMenuItemConfig): string {
   return getIcon(data).replace(/^image:\/\//, '')
 }
 
-function isSVGPathStr(icon: string): boolean {
+function isSVGPathStr (icon: string): boolean {
   return /^path:\/\/.+$/.test(icon)
 }
 
-function isImageUrl(icon: string): boolean {
+function isImageUrl (icon: string): boolean {
   return /^image:\/\/.+$/.test(icon)
 }
 </script>
@@ -74,6 +74,6 @@ img.reactive-menu-item-icon {
 svg.reactive-menu-item-icon {
   height: 18px;
   line-height: 18px;
-  fill: currentColor;
+  fill: currentcolor;
 }
 </style>

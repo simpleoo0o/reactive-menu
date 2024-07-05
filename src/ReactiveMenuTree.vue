@@ -41,12 +41,12 @@
 import * as _ from 'lodash'
 import { ElTree, ElCheckbox, ElButton, ElMessageBox, ElMessage } from 'element-plus'
 import { reactive, ref, watch } from 'vue'
-import { ReactiveMenuItemVO } from './useReactiveMenu'
+import { ReactiveMenuItemConfig } from './useReactiveMenu'
 import Node from 'element-plus/es/components/tree/src/model/node'
 import { NodeDropType } from 'element-plus/es/components/tree/src/tree.type'
 
 const props = withDefaults(defineProps<{
-  menuData: ReactiveMenuItemVO[]
+  menuData: ReactiveMenuItemConfig[]
   isOpenDrag: boolean
   isOpenRename: boolean
   isOpenDefault: boolean
@@ -59,7 +59,7 @@ const props = withDefaults(defineProps<{
   isOpenCheck: true
 })
 
-let menus = reactive<ReactiveMenuItemVO[]>([])
+let menus = reactive<ReactiveMenuItemConfig[]>([])
 watch(
   props.menuData,
   () => {
@@ -72,14 +72,14 @@ watch(
 
 const reactiveMenuTree = ref<typeof ElTree>()
 
-function setDefault(node: Node) {
+function setDefault (node: Node) {
   _.forEach(node.parent.childNodes, (childNode) => {
     childNode.data.config.isDefault = false
   })
   node.data.config.isDefault = true
 }
 
-function rename(node: Node) {
+function rename (node: Node) {
   ElMessageBox.prompt('', '重命名', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
@@ -102,12 +102,12 @@ function rename(node: Node) {
     })
 }
 
-function handleCheckboxChange(node: Node) {
+function handleCheckboxChange (node: Node) {
   changeChildrenByParent(node)
   changeParentByNode(node)
 }
 
-function changeChildrenByParent(parent: Node) {
+function changeChildrenByParent (parent: Node) {
   const children = parent.childNodes
   for (const child of children || []) {
     child.data.checked = parent.data.checked
@@ -115,7 +115,7 @@ function changeChildrenByParent(parent: Node) {
   }
 }
 
-function changeParentByNode(node: Node) {
+function changeParentByNode (node: Node) {
   const parent = node.parent
   if (parent) {
     const flag = !!_.find(parent.childNodes, 'data.checked')
@@ -126,18 +126,18 @@ function changeParentByNode(node: Node) {
   }
 }
 
-function allowDrag() {
+function allowDrag () {
   return true
 }
 
-function allowDrop(draggingNode: Node, dropNode: Node, type: NodeDropType) {
+function allowDrop (draggingNode: Node, dropNode: Node, type: NodeDropType) {
   if (draggingNode.data.pid === dropNode.data.pid) {
     return type !== 'inner'
   }
   return false
 }
 
-function handleDragEnd(draggingNode: Node) {
+function handleDragEnd (draggingNode: Node) {
   const node = reactiveMenuTree.value?.getNode(draggingNode.data)
   const children = node.parent?.data?.children || reactiveMenuTree.value?.data
   _.forEach(children, (child, index) => {
@@ -145,7 +145,7 @@ function handleDragEnd(draggingNode: Node) {
   })
 }
 
-function menuOrderAndFilter(menus: ReactiveMenuItemVO[]) {
+function menuOrderAndFilter (menus: ReactiveMenuItemConfig[]) {
   for (const menu of _.cloneDeep(menus)) {
     menu.id = menu.id.toString ? menu.id.toString() : menu.id
     if (menu && menu.children && menu.children.length) {

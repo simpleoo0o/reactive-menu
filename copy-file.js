@@ -1,8 +1,10 @@
-const fs = require('fs-extra')
-const glob = require('glob')
-const path = require('node:path')
-const _ = require('lodash')
-const { globSync: Function } = require("glob")
+import fs from 'fs-extra'
+import path from 'node:path'
+import _ from'lodash'
+import { globSync } from 'glob'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const basePath = path.resolve(__dirname)
 const savePath = path.resolve(basePath, 'dist')
 
@@ -23,16 +25,16 @@ const a = function (paths) {
   for (const key in paths) {
     if (key === 'package.json') {
       const packageFilePath = path.resolve(basePath, key)
-      const packageData = _.cloneDeep(require(packageFilePath))
+      const packageData = _.cloneDeep(fs.readJSONSync(packageFilePath))
       delete packageData.devDependencies
       delete packageData.dependencies
-      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu-item/blob/dev/README.md"
+      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu/blob/dev/README.md"
       packageData.repository = {
         "type": "git",
-        "url": "https://github.com/simpleoo0o/reactive-menu-item.git",
+        "url": "https://github.com/simpleoo0o/reactive-menu.git",
       }
-      packageData.main = './reactive-menu.js'
-      packageData.module = './reactive-menu.mjs'
+      packageData.main = './reactive-menu.cjs'
+      packageData.module = './reactive-menu.js'
       packageData.types = './reactive-menu.d.ts'
       packageData.unpkg = './reactive-menu.iife.js'
       packageData.jsdelivr = './reactive-menu.iife.js'
@@ -40,7 +42,7 @@ const a = function (paths) {
       packageData.scripts = {}
       fs.writeJsonSync(path.resolve(savePath, key), packageData, { spaces: 2 })
     } else {
-      const files = glob.globSync(path.resolve(basePath, key))
+      const files = globSync(path.resolve(basePath, key))
       files.forEach(file => {
         if (paths[key] === true || (paths[key] instanceof Function && paths[key](file))) {
           let newPath = file.split(/[/\\]/).pop()

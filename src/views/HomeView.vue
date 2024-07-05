@@ -14,20 +14,19 @@ const calcMock = computed(() => {
 })
 const config = {
   autoIndex: true,
-  selfJump: true,
-  resetId: true
+  selfJump: true
 }
-const reactiveMenuData = useReactiveMenu(menus, {
+const reactiveMenu = useReactiveMenu(menus, {
   mock: calcMock,
   config
 });
-(window as any).reactiveMenuData = reactiveMenuData
+(window as any).reactiveMenu = reactiveMenu
 
-function goHome() {
-  reactiveMenuData.methods.goDefault()
+function goHome () {
+  reactiveMenu.methods.goDefault()
 }
 
-function handleClick(arg: any) {
+function handleClick (arg: any) {
   console.log(arg)
 }
 </script>
@@ -37,13 +36,13 @@ function handleClick(arg: any) {
     <el-header>
       <div class="logo" @click="goHome">LOGO</div>
       <el-menu
-        :default-active="reactiveMenuData.topActiveIndex"
+        :default-active="reactiveMenu.topActiveIndex"
         class="el-menu-demo"
         mode="horizontal"
         :ellipsis="false"
       >
         <reactive-menu-item
-          v-for="item of reactiveMenuData.menus"
+          v-for="item of reactiveMenu.menus"
           :key="item.id"
           :data="item"
           @on-click="handleClick"
@@ -51,15 +50,15 @@ function handleClick(arg: any) {
       </el-menu>
     </el-header>
     <el-container class="body">
-      <el-aside v-show="!!reactiveMenuData.secondMenus?.length" width="200px">
+      <el-aside v-show="!!reactiveMenu.secondMenus?.length" width="200px">
         <el-menu
-          :default-active="reactiveMenuData.activeIndex"
+          :default-active="reactiveMenu.activeIndex"
           class="el-menu-demo"
           mode="vertical"
           :ellipsis="false"
         >
           <reactive-menu-item
-            v-for="item of reactiveMenuData.secondMenus"
+            v-for="item of reactiveMenu.secondMenus"
             :key="item.id"
             :data="item"
           >
@@ -74,7 +73,7 @@ function handleClick(arg: any) {
       </el-aside>
       <el-container>
         <el-main>
-          <RouterView />
+          <RouterView/>
         </el-main>
       </el-container>
     </el-container>

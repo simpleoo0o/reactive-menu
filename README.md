@@ -1,25 +1,25 @@
-# reactive-menu-item
-提供一个 ReactiveMenuItemVO 类型的菜单树，可根据url匹配到对应的菜单项，支持动态参数，可利用配置项生成导航，达到动态导航的目的
+# reactive-menu
+提供一个 ReactiveMenuItemConfig[] 类型的菜单树，可根据url匹配到对应的菜单项，支持动态参数，可利用配置项生成导航，达到动态导航的目的
 
 ## demo
-https://simpleoo0o.github.io/reactive-menu-item-demo
+https://simpleoo0o.github.io/reactive-menu-demo
 
 ## 安装
 ```shell
-npm i reactive-menu-item
+npm i reactive-menu
 ```
 
 ## 使用
 ### 基础用法
 ```vue
 <script setup>
-    // import ReactiveMenuItem from 'reactive-menu-item/ReactiveMenuItem.vue'
-    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
-    import { ReactiveMenuItem, useReactiveMenu } from 'reactive-menu-item'
+    // import ReactiveMenuItem from 'reactive-menu/ReactiveMenuItem.vue'
+    // import useReactiveMenu from 'reactive-menu/useReactiveMenu'
+    import { ReactiveMenuItem, useReactiveMenu } from 'reactive-menu'
 
-    import menus from '@/menus' // 导航数据，类型为ReactiveMenuItemVO[]
+    import menus from '@/menus' // 导航数据，类型为ReactiveMenuItemConfig[]
 
-    const reactiveMenuData = useReactiveMenu(menus)
+    const reactiveMenu = useReactiveMenu(menus)
 </script>
 
 <template>
@@ -27,17 +27,17 @@ npm i reactive-menu-item
         <el-header>
             <div class="logo">LOGO</div>
             <el-menu
-              :default-active="reactiveMenuData.topActiveIndex"
+              :default-active="reactiveMenu.topActiveIndex"
               mode="horizontal">
-                <reactive-menu-item v-for="item of reactiveMenuData.menus" :key="item.id" :data="item"/>
+                <reactive-menu-item v-for="item of reactiveMenu.menus" :key="item.id" :data="item"/>
             </el-menu>
         </el-header>
         <el-container>
             <el-aside width="200px">
                 <el-menu
-                  :default-active="reactiveMenuData.activeIndex"
+                  :default-active="reactiveMenu.activeIndex"
                   mode="vertical">
-                    <reactive-menu-item v-for="item of reactiveMenuData.secondMenus" :key="item.id" :data="item">
+                    <reactive-menu-item v-for="item of reactiveMenu.secondMenus" :key="item.id" :data="item">
                     </reactive-menu-item>
                 </el-menu>
             </el-aside>
@@ -56,9 +56,9 @@ npm i reactive-menu-item
 
 <template>
     <el-menu
-      :default-active="reactiveMenuData.activeIndex"
+      :default-active="reactiveMenu.activeIndex"
       mode="vertical">
-        <reactive-menu-item v-for="item of reactiveMenuData.secondMenus" :key="item.id" :data="item">
+        <reactive-menu-item v-for="item of reactiveMenu.secondMenus" :key="item.id" :data="item">
             <template #menu-item="{data}">
                 {{data.name}}
             </template>
@@ -76,12 +76,12 @@ npm i reactive-menu-item
 ### mock
 ```vue
 <script setup>
-    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
-    import { useReactiveMenu } from 'reactive-menu-item'
+    // import useReactiveMenu from 'reactive-menu/useReactiveMenu'
+    import { useReactiveMenu } from 'reactive-menu'
 
     import menus from '@/menus'
 
-    const reactiveMenuData = useReactiveMenu(menus, {
+    const reactiveMenu = useReactiveMenu(menus, {
         mock: {
             kgName: 'abc'
         }
@@ -91,12 +91,12 @@ npm i reactive-menu-item
 ### 配置项
 ```vue
 <script setup>
-    // import useReactiveMenu from 'reactive-menu-item/useReactiveMenu'
-    import { useReactiveMenu } from 'reactive-menu-item'
+    // import useReactiveMenu from 'reactive-menu/useReactiveMenu'
+    import { useReactiveMenu } from 'reactive-menu'
 
     import menus from '@/menus'
 
-    const reactiveMenuData = useReactiveMenu(menus, {
+    const reactiveMenu = useReactiveMenu(menus, {
         config: {
             autoIndex: true, // 无匹配导航时是否重定向到首页，默认true
             selfJump: false // 点击当前导航时，是否跳转，默认false
@@ -109,6 +109,6 @@ npm i reactive-menu-item
 ```vue
 <script setup>
 import { inject } from 'vue'
-const reactiveMenuData = inject('reactiveMenuData')
+const reactiveMenu = inject('reactiveMenu')
 </script>
 ```

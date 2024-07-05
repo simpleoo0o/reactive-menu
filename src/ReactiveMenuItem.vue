@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import * as _ from 'lodash'
 import { ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
-import { computed, inject, toRef } from "vue";
+import { computed, inject, toRef } from 'vue'
 import MenuContent from './MenuContent.vue'
-import { ReactiveMenuItemVO, ReactiveMenuVO } from './useReactiveMenu'
-import { MenuProvider } from "element-plus/es/components/menu/src/types";
+import { ReactiveMenuItemConfig, ReactiveMenu } from './useReactiveMenu'
+import { MenuProvider } from 'element-plus/es/components/menu/src/types'
 
-const reactiveMenuData = inject('reactiveMenuData') as ReactiveMenuVO
+const reactiveMenu = inject('reactiveMenu') as ReactiveMenu
 const rootMenu: MenuProvider | undefined = inject('rootMenu')
 
 const props = defineProps<{
-  data: ReactiveMenuItemVO
+  data: ReactiveMenuItemConfig
 }>()
 const emit = defineEmits(['on-click'])
 const menuChildren = computed(() => {
@@ -30,13 +30,13 @@ const type = computed(function () {
   return ''
 })
 const isActive = computed(function () {
-  return !!_.find(reactiveMenuData.currentMenuWithParents, ['id', props.data.id])
+  return !!_.find(reactiveMenu.currentMenuWithParents, ['id', props.data.id])
 })
 
-function handleClick() {
+function handleClick () {
   window.event?.stopPropagation()
   window.event?.stopImmediatePropagation()
-  const isSelf = props.data.id === reactiveMenuData.currentMenu?.id
+  const isSelf = props.data.id === reactiveMenu.currentMenu?.id
   emit('on-click', {
     type,
     isSelf,
@@ -45,23 +45,23 @@ function handleClick() {
   if (
     props.data.config.disabledDefaultClick ||
     props.data.config.disabled ||
-    (isSelf && !reactiveMenuData.config.selfJump)
+    (isSelf && !reactiveMenu.config.selfJump)
   ) {
     resetActiveIndex()
     return
   }
 
-  const menu = reactiveMenuData.methods.jump(props.data)
+  const menu = reactiveMenu.methods.jump(props.data)
   if (!menu || (menu && menu.config?.target && menu.config.target !== '_self')) {
     resetActiveIndex()
   }
 }
 
-function onClick(...args: any[]) {
+function onClick (...args: any[]) {
   emit('on-click', ...args)
 }
 
-function classGet(type: string) {
+function classGet (type: string) {
   const classMap = {
     'reactive-menu-item': true,
     [`reactive-menu-item-${type}`]: true
@@ -74,11 +74,11 @@ function classGet(type: string) {
   return classMap
 }
 
-function resetActiveIndex() {
+function resetActiveIndex () {
   if (!rootMenu) {
     return
   }
-  const activeMenuIndex = _.findLast(reactiveMenuData.currentMenuWithParents, (item) => {
+  const activeMenuIndex = _.findLast(reactiveMenu.currentMenuWithParents, (item) => {
     return !!_.find(rootMenu?.items || [], ['index', item.id])
   })?.id
   const activeIndex = toRef(rootMenu, 'activeIndex')
@@ -86,10 +86,10 @@ function resetActiveIndex() {
     activeIndex.value = activeMenuIndex
   } else {
     activeIndex.value = undefined
-    // reactiveMenuData.currentMenu = null
-    // reactiveMenuData.currentMenuWithParents = []
+    // reactiveMenu.currentMenu = null
+    // reactiveMenu.currentMenuWithParents = []
     // nextTick(() => {
-    //   reactiveMenuData.methods.matchRoute()
+    //   reactiveMenu.methods.matchRoute()
     // })
   }
 }
@@ -101,7 +101,7 @@ function resetActiveIndex() {
     v-if="data.config && data.config.element"
     :data="data"
     :class="classGet('component')"
-  ></component>
+  />
   <el-menu-item-group
     v-else-if="type === 'menuItemGroup'"
     :disabled="data.config?.disabled"
@@ -111,7 +111,7 @@ function resetActiveIndex() {
   >
     <template #title>
       <slot name="menu-item-group" :data="data">
-        <menu-content :menu-data="data" />
+        <menu-content :menu-data="data"/>
       </slot>
     </template>
     <reactive-menu-item
@@ -142,7 +142,7 @@ function resetActiveIndex() {
   >
     <template #title>
       <slot name="sub-menu" :data="data">
-        <menu-content :menu-data="data" />
+        <menu-content :menu-data="data"/>
       </slot>
     </template>
     <reactive-menu-item
@@ -171,9 +171,7 @@ function resetActiveIndex() {
     @click="handleClick"
   >
     <slot name="menu-item" :data="data">
-      <menu-content :menu-data="data" />
+      <menu-content :menu-data="data"/>
     </slot>
   </el-menu-item>
 </template>
-
-<style scoped></style>
