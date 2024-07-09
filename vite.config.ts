@@ -14,11 +14,11 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['lodash', 'vue', 'element-plus', 'vue-router'],
+      external: ['lodash-es', 'vue', 'element-plus', 'vue-router'],
       output: {
         manualChunks: undefined,
         globals: {
-          lodash: '_',
+          'lodash-es': '_',
           vue: 'Vue',
           'vue-router': 'VueRouter',
           'element-plus': 'ElementPlus'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { findLast, filter, find } from 'lodash'
+import { findLast, filter, find } from 'lodash-es'
 import { ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
 import { computed, inject, toRef } from 'vue'
 import MenuContent from './MenuContent.vue'

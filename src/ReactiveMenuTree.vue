@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { forEach, orderBy, cloneDeep, find, filter } from 'lodash'
+import { forEach, orderBy, cloneDeep, find, filter } from 'lodash-es'
 import { ElTree, ElCheckbox, ElButton, ElMessageBox, ElMessage } from 'element-plus'
 import { reactive, ref, watch } from 'vue'
 import { ReactiveMenuItemConfig } from './useReactiveMenu'

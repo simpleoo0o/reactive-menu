@@ -1,4 +1,4 @@
-import { get, keys, map, escapeRegExp, orderBy, cloneDeep, filter, find, findLast, merge } from 'lodash'
+import { get, keys, map, escapeRegExp, orderBy, cloneDeep, filter, find, findLast, merge } from 'lodash-es'
 import {
   reactive,
   provide,
