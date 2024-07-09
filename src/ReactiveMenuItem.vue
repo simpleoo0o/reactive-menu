@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import * as _ from 'lodash'
+import { findLast, filter, find } from 'lodash'
 import { ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
 import { computed, inject, toRef } from 'vue'
 import MenuContent from './MenuContent.vue'
@@ -17,7 +17,7 @@ const menuChildren = computed(() => {
   if (props.data.config.boundary) {
     return []
   }
-  return _.filter(props.data.children, ['type', 'menu'])
+  return filter(props.data.children, ['type', 'menu'])
 })
 const type = computed(function () {
   if (props.data.config.menuItemGroup) {
@@ -30,7 +30,7 @@ const type = computed(function () {
   return ''
 })
 const isActive = computed(function () {
-  return !!_.find(reactiveMenu.currentMenuWithParents, ['id', props.data.id])
+  return !!find(reactiveMenu.currentMenuWithParents, ['id', props.data.id])
 })
 
 function handleClick () {
@@ -78,8 +78,8 @@ function resetActiveIndex () {
   if (!rootMenu) {
     return
   }
-  const activeMenuIndex = _.findLast(reactiveMenu.currentMenuWithParents, (item) => {
-    return !!_.find(rootMenu?.items || [], ['index', item.id])
+  const activeMenuIndex = findLast(reactiveMenu.currentMenuWithParents, (item) => {
+    return !!find(rootMenu?.items || [], ['index', item.id])
   })?.id
   const activeIndex = toRef(rootMenu, 'activeIndex')
   if (activeMenuIndex) {
@@ -100,15 +100,13 @@ function resetActiveIndex () {
     :is="data.config.element"
     v-if="data.config && data.config.element"
     :data="data"
-    :class="classGet('component')"
-  />
+    :class="classGet('component')"/>
   <el-menu-item-group
     v-else-if="type === 'menuItemGroup'"
     :disabled="data.config?.disabled"
     :class="classGet('menu-item-group')"
     v-bind="data.config.attributes"
-    @click.stop="handleClick"
-  >
+    @click.stop="handleClick">
     <template #title>
       <slot name="menu-item-group" :data="data">
         <menu-content :menu-data="data"/>
@@ -118,8 +116,7 @@ function resetActiveIndex () {
       v-for="item of menuChildren"
       :key="item.id"
       :data="item"
-      @on-click="onClick"
-    >
+      @on-click="onClick">
       <template #menu-item-group="scope">
         <slot name="menu-item-group" :data="scope.data"></slot>
       </template>
@@ -138,8 +135,7 @@ function resetActiveIndex () {
     :disabled="data.config?.disabled"
     :index="data.id"
     :class="classGet('sub-menu')"
-    @click.stop="handleClick"
-  >
+    @click.stop="handleClick">
     <template #title>
       <slot name="sub-menu" :data="data">
         <menu-content :menu-data="data"/>
@@ -149,8 +145,7 @@ function resetActiveIndex () {
       v-for="item of menuChildren"
       :key="item.id"
       :data="item"
-      @on-click="onClick"
-    >
+      @on-click="onClick">
       <template #menu-item-group="scope">
         <slot name="menu-item-group" :data="scope.data"></slot>
       </template>
@@ -168,8 +163,7 @@ function resetActiveIndex () {
     :disabled="data.config?.disabled"
     :index="data.id"
     :class="classGet('menu-item')"
-    @click="handleClick"
-  >
+    @click="handleClick">
     <slot name="menu-item" :data="data">
       <menu-content :menu-data="data"/>
     </slot>

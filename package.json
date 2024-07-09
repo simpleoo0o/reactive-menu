@@ -1,11 +1,21 @@
 {
   "name": "reactive-menu",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": true,
   "type": "module",
   "description": "reactive menu base on element-plus",
   "author": "Lixin<https://github.com/simpleoo0o>",
   "license": "MIT",
+  "homepage": "https://github.com/simpleoo0o/reactive-menu#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simpleoo0o/reactive-menu.git"
+  },
+  "main": "./reactive-menu.cjs",
+  "module": "./reactive-menu.js",
+  "types": "./reactive-menu.d.ts",
+  "unpkg": "./reactive-menu.iife.js",
+  "jsdelivr": "./reactive-menu.iife.js",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --declaration --emitDeclarationOnly && vite build && node copy-file.js",

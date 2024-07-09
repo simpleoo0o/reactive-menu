@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import { get, keys, map, escapeRegExp, orderBy, cloneDeep, filter, find, findLast, merge } from 'lodash'
 import {
   reactive,
   provide,
@@ -142,10 +142,10 @@ export function useReactiveMenu (menus: ReactiveMenuItemConfig[], options: React
     })
   }
 
-  reactiveMenu.config = _.merge({}, reactiveMenu.config, getOriginalValue(options.config || {}))
+  reactiveMenu.config = merge({}, reactiveMenu.config, getOriginalValue(options.config || {}))
   if (options.config && (isRef(options.config) || isProxy(options.config))) {
     watch(options?.config || {}, () => {
-      reactiveMenu.config = _.merge({}, reactiveMenu.config, getOriginalValue(options.config || {}))
+      reactiveMenu.config = merge({}, reactiveMenu.config, getOriginalValue(options.config || {}))
     })
   }
 
@@ -160,7 +160,7 @@ export function useReactiveMenu (menus: ReactiveMenuItemConfig[], options: React
   }
 
   watchEffect(() => {
-    const lastParent = _.findLast<ReactiveMenuItemConfig>(reactiveMenu.currentMenuWithParents, (o) => {
+    const lastParent = findLast<ReactiveMenuItemConfig>(reactiveMenu.currentMenuWithParents, (o) => {
       return !!(
         o.config &&
         o.config.boundary &&
@@ -171,10 +171,12 @@ export function useReactiveMenu (menus: ReactiveMenuItemConfig[], options: React
       )
     })
     if (lastParent) {
-      if (reactiveMenu.currentMenu && reactiveMenu.currentMenu.type !== 'menu' && _.find(lastParent.children, { id: reactiveMenu.currentMenu.id })) {
+      if (reactiveMenu.currentMenu &&
+        reactiveMenu.currentMenu.type !== 'menu' &&
+        find(lastParent.children, { id: reactiveMenu.currentMenu.id })) {
         reactiveMenu.secondMenus = []
       } else {
-        reactiveMenu.secondMenus = _.filter(lastParent.children || [], ['type', 'menu'])
+        reactiveMenu.secondMenus = filter(lastParent.children || [], ['type', 'menu'])
       }
     } else {
       reactiveMenu.secondMenus = []
@@ -186,9 +188,9 @@ export function useReactiveMenu (menus: ReactiveMenuItemConfig[], options: React
   })
 
   watchEffect(() => {
-    reactiveMenu.topActiveIndex = _.find<ReactiveMenuItemConfig>(reactiveMenu.currentMenuWithParents || [], (item) => {
+    reactiveMenu.topActiveIndex = find<ReactiveMenuItemConfig>(reactiveMenu.currentMenuWithParents || [], (item) => {
       return !!item.config.boundary && item.type === 'menu'
-    })?.id || _.findLast(reactiveMenu.currentMenuWithParents || [], (item) => {
+    })?.id || findLast(reactiveMenu.currentMenuWithParents || [], (item) => {
       return item.type === 'menu'
     })?.id
   })
@@ -205,7 +207,7 @@ export function useReactiveMenu (menus: ReactiveMenuItemConfig[], options: React
 function updateMenus (menus: ReactiveMenuItemConfig[]) {
   reactiveMenu.currentMenu = undefined
   reactiveMenu.currentMenuWithParents = []
-  menus = _.cloneDeep(getOriginalValue(menus))
+  menus = cloneDeep(getOriginalValue(menus))
   resetMenuIds(menus)
   reactiveMenu.menus = menuOrderAndFilter(menus)
   matchRoute()
@@ -220,7 +222,7 @@ function menuOrderAndFilter (menus: ReactiveMenuItemConfig[]) {
       menu.children = menuOrderAndFilter(menu.children)
     }
   }
-  return _.filter(_.orderBy(menus, ['order'], ['asc']), (o) => {
+  return filter(orderBy(menus, ['order'], ['asc']), (o) => {
     return o.enable !== false && o.checked !== false
   })
 }
@@ -241,7 +243,7 @@ function matchRoute (route = $route, setToReactiveMenu = true, willGoDefaultIfNe
       const currentMenuWithParents2 = [...currentMenuWithParents]
       currentMenuWithParents2.push(menuItem)
       if (matchConfig(menuItem, route)) {
-        const currentMenu = _.findLast(currentMenuWithParents2, ['type', 'menu']) || menuItem
+        const currentMenu = findLast(currentMenuWithParents2, ['type', 'menu']) || menuItem
         return {
           currentMenuWithParents: currentMenuWithParents2,
           currentMenu
@@ -340,7 +342,7 @@ function matchConfig (item: ReactiveMenuItemConfig, $routeToMatch: RouteLocation
 }
 
 function matchValue (a: string, b: string) {
-  const reg = new RegExp('^' + _.escapeRegExp(a).replace(/(\/?\\\$\\{.*?\\\?\\})+/g, '.*?') + '$')
+  const reg = new RegExp('^' + escapeRegExp(a).replace(/(\/?\\\$\\{.*?\\\?\\})+/g, '.*?') + '$')
   return reg.test(b)
 }
 
@@ -388,7 +390,7 @@ function pathValueGet (path: string, forCompare = false): string {
   // const transform = (item) => {
   //     const mockKeys = item.match(/\$\{(.*?)\??}/g)
   //     if (mockKeys && mockKeys.length) {
-  //         _.forEach(mockKeys, (mockKey) => {
+  //         forEach(mockKeys, (mockKey) => {
   //             if (mockKey.endsWith('?}') && forCompare) {
   //                 return
   //             }
@@ -423,11 +425,11 @@ function goDefault (menus = reactiveMenu.menus) {
 }
 
 function getDefault (menuList: ReactiveMenuItemConfig[]) {
-  let defaultItem = _.find<ReactiveMenuItemConfig>(menuList, (o) => {
+  let defaultItem = find<ReactiveMenuItemConfig>(menuList, (o) => {
     return !!(o.config?.isDefault && !o.config.disabled)
   })
   if (!defaultItem) {
-    defaultItem = _.find<ReactiveMenuItemConfig>(menuList, (o) => {
+    defaultItem = find<ReactiveMenuItemConfig>(menuList, (o) => {
       return o.type === 'menu' && !o.config.disabled
     })
   }
@@ -460,7 +462,7 @@ function jump (menu: ReactiveMenuItemConfig | undefined) {
     if (configRoute.path) {
       (routeInfo as RouteLocationPathRaw).path = pathValueGet(configRoute.path)
       if (routeInfo.query) {
-        (routeInfo as RouteLocationPathRaw).path += ((routeInfo as RouteLocationPathRaw).path.includes('?') ? '&' : '?') + _.map(_.keys(routeInfo.query), (key) => {
+        (routeInfo as RouteLocationPathRaw).path += ((routeInfo as RouteLocationPathRaw).path.includes('?') ? '&' : '?') + map(keys(routeInfo.query), (key) => {
           return `${key}=${encodeURIComponent(routeInfo.query?.[key] as string)}`
         }).join('&')
       }
@@ -487,12 +489,12 @@ function getMockValue (key: string) {
     return new Date().getTime()
   }
   const mock = getOriginalValue(reactiveMenu.mock)
-  return _.get(mock, key)
+  return get(mock, key)
 }
 
 function getConfigValue (key: string) {
   const config = getOriginalValue(reactiveMenu.config)
-  return _.get(config, key)
+  return get(config, key)
 }
 
 function getOriginalValue<T> (value: UnwrapNestedRefs<T> | MaybeRef<T>): T {

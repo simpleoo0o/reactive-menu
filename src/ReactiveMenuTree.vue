@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import * as _ from 'lodash'
+import { forEach, orderBy, cloneDeep, find, filter } from 'lodash'
 import { ElTree, ElCheckbox, ElButton, ElMessageBox, ElMessage } from 'element-plus'
 import { reactive, ref, watch } from 'vue'
 import { ReactiveMenuItemConfig } from './useReactiveMenu'
@@ -73,7 +73,7 @@ watch(
 const reactiveMenuTree = ref<typeof ElTree>()
 
 function setDefault (node: Node) {
-  _.forEach(node.parent.childNodes, (childNode) => {
+  forEach(node.parent.childNodes, (childNode) => {
     childNode.data.config.isDefault = false
   })
   node.data.config.isDefault = true
@@ -118,7 +118,7 @@ function changeChildrenByParent (parent: Node) {
 function changeParentByNode (node: Node) {
   const parent = node.parent
   if (parent) {
-    const flag = !!_.find(parent.childNodes, 'data.checked')
+    const flag = !!find(parent.childNodes, 'data.checked')
     if (flag !== parent.data.checked) {
       parent.data.checked = flag
       changeParentByNode(parent)
@@ -140,19 +140,19 @@ function allowDrop (draggingNode: Node, dropNode: Node, type: NodeDropType) {
 function handleDragEnd (draggingNode: Node) {
   const node = reactiveMenuTree.value?.getNode(draggingNode.data)
   const children = node.parent?.data?.children || reactiveMenuTree.value?.data
-  _.forEach(children, (child, index) => {
+  forEach(children, (child, index) => {
     child.order = index
   })
 }
 
 function menuOrderAndFilter (menus: ReactiveMenuItemConfig[]) {
-  for (const menu of _.cloneDeep(menus)) {
+  for (const menu of cloneDeep(menus)) {
     menu.id = menu.id.toString ? menu.id.toString() : menu.id
     if (menu && menu.children && menu.children.length) {
       menu.children = menuOrderAndFilter(menu.children)
     }
   }
-  return _.filter(_.orderBy(menus, ['order'], ['asc']), (o) => {
+  return filter(orderBy(menus, ['order'], ['asc']), (o) => {
     return o.checked !== false
   })
 }

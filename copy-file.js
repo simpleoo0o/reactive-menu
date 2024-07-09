@@ -28,16 +28,6 @@ const a = function (paths) {
       const packageData = _.cloneDeep(fs.readJSONSync(packageFilePath))
       delete packageData.devDependencies
       delete packageData.dependencies
-      packageData.homepage = "https://github.com/simpleoo0o/reactive-menu/blob/dev/README.md"
-      packageData.repository = {
-        "type": "git",
-        "url": "https://github.com/simpleoo0o/reactive-menu.git",
-      }
-      packageData.main = './reactive-menu.cjs'
-      packageData.module = './reactive-menu.js'
-      packageData.types = './reactive-menu.d.ts'
-      packageData.unpkg = './reactive-menu.iife.js'
-      packageData.jsdelivr = './reactive-menu.iife.js'
       delete packageData.private
       packageData.scripts = {}
       fs.writeJsonSync(path.resolve(savePath, key), packageData, { spaces: 2 })
