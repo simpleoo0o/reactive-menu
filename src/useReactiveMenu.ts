@@ -56,7 +56,7 @@ export interface ReactiveMenuItemConfig {
     element?: string; // 自定义元素，type为 'menu' 时生效
     boundary?: boolean; // 边界,对应某个菜单项内展开一个详情，自成一棵导航树的场景,如3.6版kgtext，语料管理 点击 管理，进入管理详情，自成一棵导航树
     isDefault?: boolean;
-    icon?: string;// 默认为icon的class,支持path://开头的，svg path的d，或者path://开头的图片地址,仿echarts的 https://echarts.apache.org/zh/option.html#series-line.symbol
+    icon?: string;// 默认为icon的class,支持path://开头的，svg path的d，或者image://开头的图片地址,仿echarts的 https://echarts.apache.org/zh/option.html#series-line.symbol
     viewBox?: string; // 配合icon以path://开头的使用,默认'0 0 24 24'
     target?: '_blank' | '_self'; // 点击menu时是新开还是本页跳转，默认_self
     disabled?: boolean;
