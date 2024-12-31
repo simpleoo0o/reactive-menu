@@ -477,6 +477,8 @@ function jump (menu: ReactiveMenuItemConfig | undefined) {
     }
     return menu
   } else if (menu.children && menu.children.length && menu.config.boundary) {
+    // 判断menu.config.boundary 是兼容点击subMenu且subMenu本身未配置route信息，不用跳转到子
+    // 此时若想跳转，直接调用jump(getDefault([menuItem]))
     return jump(getDefault(menu.children))
   }
 }

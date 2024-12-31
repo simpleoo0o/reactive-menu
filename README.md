@@ -29,7 +29,10 @@ npm i reactive-menu
             <el-menu
               :default-active="reactiveMenu.topActiveIndex"
               mode="horizontal">
-                <reactive-menu-item v-for="item of reactiveMenu.menus" :key="item.id" :data="item"/>
+                <reactive-menu-item
+                  v-for="item of reactiveMenu.menus"
+                  :key="item.id"
+                  :data="item"/>
             </el-menu>
         </el-header>
         <el-container>
@@ -37,7 +40,10 @@ npm i reactive-menu
                 <el-menu
                   :default-active="reactiveMenu.activeIndex"
                   mode="vertical">
-                    <reactive-menu-item v-for="item of reactiveMenu.secondMenus" :key="item.id" :data="item">
+                    <reactive-menu-item
+                      v-for="item of reactiveMenu.secondMenus"
+                      :key="item.id"
+                      :data="item">
                     </reactive-menu-item>
                 </el-menu>
             </el-aside>
@@ -74,6 +80,7 @@ npm i reactive-menu
 ```
 
 ### mock
+ReactiveMenuItemConfig中动态数据的来源
 ```vue
 <script setup>
     // import useReactiveMenu from 'reactive-menu/useReactiveMenu'
@@ -108,7 +115,7 @@ npm i reactive-menu
 ### provide
 ```vue
 <script setup>
-import { inject } from 'vue'
-const reactiveMenu = inject('reactiveMenu')
+    import { inject } from 'vue'
+    const reactiveMenu = inject('reactiveMenu')
 </script>
 ```
